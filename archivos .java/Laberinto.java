@@ -51,6 +51,7 @@ public class Laberinto {
 	static int totalPartidas = 0;
 	static int totalOroPartidas = 0;
 	static int totalMovimientos = 0;
+	static int totalVecesAtrapado = 0;
 
 	public static void main(String[] args) {
 		Helpers.clear();
@@ -178,11 +179,11 @@ public class Laberinto {
 		indiceUltimoMapa++;
 
 		char[][] matriz2 = {
-				{ '#', 'G', '#', 'G', 'O', 'O', 'O', 'O', 'O', 'O' },
+				{ '#', 'G', 'O', 'G', 'O', 'O', 'O', 'O', 'O', 'O' },
 				{ 'S', 'O', '#', '#', '#', '#', 'O', '#', '#', 'O' },
 				{ '#', 'O', 'O', 'O', 'O', 'O', 'O', 'O', '#', 'O' },
 				{ '#', 'O', '#', '#', '#', '#', '#', 'O', '#', 'O' },
-				{ '#', 'O', 'O', 'O', 'O', 'S', '#', 'G', '#', 'G' }
+				{ '#', 'O', 'O', 'O', 'O', 'S', 'O', 'G', '#', 'G' }
 		};
 
 		// Arreglo de salidas
@@ -198,8 +199,8 @@ public class Laberinto {
 				new Oro(10, new int[] { 4, 9 }),
 		};
 
-		Mapa mapaPequeño = new Mapa("Mapa pequeño", matriz2, salidas2, listaOro2);
-		LISTA_MAPAS[indiceUltimoMapa] = mapaPequeño;
+		Mapa mapaPequeno = new Mapa("Mapa pequeno", matriz2, salidas2, listaOro2);
+		LISTA_MAPAS[indiceUltimoMapa] = mapaPequeno;
 		indiceUltimoMapa++;
 
 		menuPrincipal(false);

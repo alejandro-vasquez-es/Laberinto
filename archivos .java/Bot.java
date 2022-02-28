@@ -7,11 +7,23 @@ public class Bot {
 	int numeroTurno = 1;
 	Juego juego = new Juego();
 	char caracter = 'B';
+	int movimientos = 0;
+	int vecesEnVision = 0;
 
 	public Bot(int[] _posicion) {
 
 		this.posicion = _posicion;
 
+	}
+
+	public void getMovimientos() {
+		System.out.println(
+				"El total de movimientos realizados por el bot para atrapar al jugador es de: " + this.movimientos);
+	}
+
+	public void getVecesEnVision() {
+		System.out.println(
+				"El total de veces que el jugador estuvo en visión del bot es de: " + this.vecesEnVision);
 	}
 
 	public void mover(int _direccion, Mapa _mapa, boolean _estaSimulacion) {
@@ -34,9 +46,8 @@ public class Bot {
 					_mapa.matriz[this.posicion[0]][this.posicion[1]] = this.caracter;
 					if (!_estaSimulacion) {
 						System.out.println("El bot se movió hacia el norte");
-
 					}
-					// this.movimientos++;
+					this.movimientos++;
 				}
 				break;
 			case 2:
@@ -59,7 +70,7 @@ public class Bot {
 						System.out.println("El bot se movió hacia el sur");
 
 					}
-					// this.movimientos++;
+					this.movimientos++;
 				}
 				break;
 			case 3:
@@ -82,7 +93,7 @@ public class Bot {
 
 					}
 				}
-				// this.movimientos++;
+				this.movimientos++;
 
 				break;
 			case 4:
@@ -105,7 +116,7 @@ public class Bot {
 						System.out.println("El bot se movió hacia el este");
 
 					}
-					// this.movimientos++;
+					this.movimientos++;
 				}
 				break;
 
@@ -131,24 +142,32 @@ public class Bot {
 
 		this.mover(1, _mapa, true);
 		double distanciaNorte = distancia(_jugador);
+		if (!Arrays.equals(posicionOriginal, this.posicion))
+			this.movimientos--;
 		this.posicion = posicionOriginal.clone();
 		this.limpiarMatriz(_mapa);
 		_mapa.matriz[this.posicion[0]][this.posicion[1]] = this.caracter;
 
 		this.mover(2, _mapa, true);
 		double distanciaSur = distancia(_jugador);
+		if (!Arrays.equals(posicionOriginal, this.posicion))
+			this.movimientos--;
 		this.posicion = posicionOriginal.clone();
 		this.limpiarMatriz(_mapa);
 		_mapa.matriz[this.posicion[0]][this.posicion[1]] = this.caracter;
 
 		this.mover(3, _mapa, true);
 		double distanciaOeste = distancia(_jugador);
+		if (!Arrays.equals(posicionOriginal, this.posicion))
+			this.movimientos--;
 		this.posicion = posicionOriginal.clone();
 		this.limpiarMatriz(_mapa);
 		_mapa.matriz[this.posicion[0]][this.posicion[1]] = this.caracter;
 
 		this.mover(4, _mapa, true);
 		double distanciaEste = distancia(_jugador);
+		if (!Arrays.equals(posicionOriginal, this.posicion))
+			this.movimientos--;
 		this.posicion = posicionOriginal.clone();
 		this.limpiarMatriz(_mapa);
 		_mapa.matriz[this.posicion[0]][this.posicion[1]] = this.caracter;
@@ -170,6 +189,10 @@ public class Bot {
 
 		this.mover(direccionDistanciaMenor, _mapa, true);
 		System.out.println("El bot realizó un movimiento para atraparte. !Corre!");
+		if (Arrays.equals(_jugador.posicion, this.posicion)) {
+			System.out.println("El bot atrapó al jugador");
+			terminarJuego(_mapa, _jugador);
+		}
 		if (!this.mirar(_mapa, _jugador)) {
 			this.jugadorALaVista = false;
 			System.out.println("El bot ya no te puede ver, intenta no cruzarte cerca de él.");
@@ -177,9 +200,30 @@ public class Bot {
 
 	}
 
+	public void terminarJuego(Mapa _mapa, Jugador _jugador) {
+
+		_mapa.estaJuegoTerminado = true;
+		this.limpiarMatriz(_mapa);
+		Laberinto.LISTA_JUGADORES[Laberinto.indiceUltimoJugador] = _jugador;
+		Laberinto.indiceUltimoJugador++;
+		_jugador.estado = "perder";
+		for (int i = 0; i < _mapa.listaOro.length; i++) {
+			_mapa.listaOro[i].estaLevantada = false;
+			_mapa.matriz[_mapa.listaOro[i].posicion[0]][_mapa.listaOro[i].posicion[1]] = 'G';
+		}
+
+		_mapa.vecesPerdidas++;
+		Laberinto.totalVecesAtrapado++;
+		Laberinto.totalPartidas++;
+		Laberinto.totalOroPartidas += _jugador.oroRecolectado;
+		Laberinto.totalMovimientos += _jugador.movimientos;
+
+	}
+
 	public boolean mirar(Mapa _mapa, Jugador _jugador) {
 
 		if ((_mapa.columnas <= 5) && (_mapa.filas <= 5)) {
+			this.vecesEnVision++;
 			return true;
 		}
 
@@ -223,6 +267,7 @@ public class Bot {
 				int x = this.posicion[1] + j;
 
 				if (Arrays.equals(new int[] { y, x }, _posicionJugador)) {
+					this.vecesEnVision++;
 					return true;
 				}
 

@@ -4,14 +4,34 @@ public class Reportes {
 
 	static Scanner scanner = new Scanner(System.in);
 
-	static void reportesFinalizarJuego(Jugador _jugador) {
+	static void reportesFinalizarJuego(Jugador _jugador, Bot _bot) {
 
 		Helpers.clear();
 		System.out.println("----Reporte--de-la--partida-------");
-		System.out.println("Ha ganado el juego !Felicidades!");
+
+		String mensaje = "";
+		switch (_jugador.estado) {
+			case "salir":
+				mensaje = "Ha ganado el juego !Felicidades!";
+				break;
+			case "perder":
+				mensaje = "El bot te atrapó, pierdes el juego";
+				break;
+			case "perder por escribir comandos erroneos":
+				mensaje = "Has perdido por escribir 3 veces seguidas un comando mal";
+				break;
+
+			default:
+				break;
+		}
+		System.out.println(mensaje);
 		_jugador.getOroRecolectado();
 		_jugador.getMovimientos(_jugador.estado);
-
+		if (_jugador.estado == "perder") {
+			_bot.getMovimientos();
+		}
+		_bot.getVecesEnVision();
+		;
 		int opcion = 0;
 		while (opcion != 1) {
 			System.out.println("Por favor presione 1 para salir al menu de eleccion de mapa para jugar");
@@ -29,7 +49,8 @@ public class Reportes {
 
 		System.out.println("----------REPORTES-GENERALES----------");
 
-		// cantidad de veces atrapado por el bot
+		System.out.println(
+				"La cantidad de veces que el jugador fue atrapado por el bot es de: " + Laberinto.totalVecesAtrapado);
 
 		System.out.println("La cantidad de partidas ganadas es de: " + Laberinto.totalPartidasGanadas);
 
@@ -72,7 +93,7 @@ public class Reportes {
 		String nombreMapaMasPerdido = "";
 		for (int i = 0; i < Laberinto.LISTA_MAPAS.length; i++) {
 			if (Laberinto.LISTA_MAPAS[i] != null) {
-				if (Laberinto.LISTA_MAPAS[i].vecesPerdidas < mapaMasPerdido) {
+				if (Laberinto.LISTA_MAPAS[i].vecesPerdidas > mapaMasPerdido) {
 					mapaMasPerdido = Laberinto.LISTA_MAPAS[i].vecesPerdidas;
 					nombreMapaMasPerdido = Laberinto.LISTA_MAPAS[i].nombre;
 				}
@@ -81,7 +102,7 @@ public class Reportes {
 		System.out
 				.println("El mapa en el que más se ha perdido es el mapa con nombre: \"" + nombreMapaMasPerdido + "\"");
 
-		System.out.println("El total de mapas creados es de: " + (Laberinto.indiceUltimoMapa - 1));
+		System.out.println("El total de mapas creados es de: " + (Laberinto.indiceUltimoMapa - 2));
 
 		int opcion = 0;
 		while (opcion != 1) {

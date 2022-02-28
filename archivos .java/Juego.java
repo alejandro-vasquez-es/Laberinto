@@ -3,9 +3,11 @@ import java.util.Scanner;
 
 public class Juego {
 
+	public static int comandosFallidos = 0;
 	public static Scanner scanner = new Scanner(System.in);
 
 	public void jugar(Mapa _mapa) {
+		comandosFallidos = 0;
 		Helpers.clear();
 		_mapa.vecesJugado++;
 		System.out.println("Empezando juego con el mapa: " + _mapa.nombre);
@@ -47,13 +49,13 @@ public class Juego {
 
 		while (!_mapa.estaJuegoTerminado) {
 			turno(_mapa, jugador);
-			turnoBot(bot, _mapa, jugador);
-			mirar(_mapa);
+			if (!_mapa.estaJuegoTerminado)
+				turnoBot(bot, _mapa, jugador);
 		}
 
 		_mapa.estaJuegoTerminado = false;
 
-		Reportes.reportesFinalizarJuego(Laberinto.LISTA_JUGADORES[Laberinto.indiceUltimoJugador - 1]);
+		Reportes.reportesFinalizarJuego(Laberinto.LISTA_JUGADORES[Laberinto.indiceUltimoJugador - 1], bot);
 
 	}
 
@@ -68,11 +70,10 @@ public class Juego {
 
 		if (_bot.jugadorALaVista) {
 			_bot.simular(_mapa, _jugador);
-			// _bot.jugadorALaVista = false;
 		} else {
 			if (_bot.mirar(_mapa, _jugador)) {
 				_bot.jugadorALaVista = true;
-				System.out.println("Estas a la vista del bot !Ten cuidado!");
+				System.out.println("El bot detectó que te encuentras cerca de él !Ten cuidado!");
 			} else {
 				int numeroAleatorio = (int) Math.floor(Math.random() * (4 - 1 + 1) + 1);
 				_bot.mover(numeroAleatorio, _mapa, false);
@@ -352,47 +353,79 @@ public class Juego {
 			case "MOVER N":
 			case "mover n":
 				mover("N", _mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			case "MOVER S":
 			case "mover s":
 				mover("S", _mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			case "MOVER E":
 			case "mover e":
 				mover("E", _mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			case "MOVER O":
 			case "mover o":
 				mover("O", _mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			case "SALIR":
 			case "salir":
 				salir(_mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			case "MIRAR":
 			case "mirar":
 				mirar5x5(_mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			case "MIRAR2":
 			case "mirar2":
 				mirar(_mapa);
+				comandosFallidos = 0;
 				break;
 			case "LEVANTAR":
 			case "levantar":
 				levantar(_mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			case "ORO":
 			case "oro":
 				_jugador.getOroRecolectado();
+				comandosFallidos = 0;
 				break;
 			case "ORO_REQUERIDO":
 			case "oro_requerido":
 				oroRequerido(_mapa, _jugador);
+				comandosFallidos = 0;
 				break;
 			default:
-				System.out.println("Ese comando no existe");
+				System.out.println("Ese comando no existe, se le resta oro");
+				_jugador.oroRecolectado--;
+				comandosFallidos++;
+				if (comandosFallidos == 3) {
+					terminarJuegoComandos(_mapa, _jugador);
+				}
 				break;
 		}
+	}
+
+	public void terminarJuegoComandos(Mapa _mapa, Jugador _jugador) {
+		_mapa.estaJuegoTerminado = true;
+		limpiarMatriz(_mapa, _jugador);
+		Laberinto.LISTA_JUGADORES[Laberinto.indiceUltimoJugador] = _jugador;
+		Laberinto.indiceUltimoJugador++;
+		_jugador.estado = "perder por escribir comandos erroneos";
+		for (int i = 0; i < _mapa.listaOro.length; i++) {
+			_mapa.listaOro[i].estaLevantada = false;
+			_mapa.matriz[_mapa.listaOro[i].posicion[0]][_mapa.listaOro[i].posicion[1]] = 'G';
+		}
+
+		_mapa.vecesPerdidas++;
+		Laberinto.totalPartidas++;
+		Laberinto.totalOroPartidas += _jugador.oroRecolectado;
+		Laberinto.totalMovimientos += _jugador.movimientos;
 	}
 
 	public void abrirMenu(boolean deNuevo) {

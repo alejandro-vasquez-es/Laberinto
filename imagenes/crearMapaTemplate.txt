@@ -1,0 +1,13 @@
+#G#GOOOOOO
+SO####O##O
+#OOOOOOO#O
+#O#####O#O
+#OOOOS#G#G
+
+S1 = 10
+S2 = 20
+
+G1= 5
+G2 = 3
+G3 = 2
+G4= 10
