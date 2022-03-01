@@ -1,8 +1,8 @@
 public class Helpers {
 
 	public static void clear() {
-		System.out.print("\033[H\033[2J");
-		System.out.flush();
+		// System.out.print("\033[H\033[2J");
+		// System.out.flush();
 	}
 
 	public static int[] localizacionRandom(int _filas, int _columnas) {
